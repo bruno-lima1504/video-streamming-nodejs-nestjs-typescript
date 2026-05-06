@@ -1,0 +1,21 @@
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Video {
+  id           String   @id
+  title        String
+  description  String
+  url          String
+  sizeInKb       Int
+  duration     Int
+  thumbnailUrl String
+  createdAt    DateTime
+  updatedAt    DateTime
+}
