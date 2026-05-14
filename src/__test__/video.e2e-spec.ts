@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { AppModule } from '../src/app.module';
-import { PrismaService } from '../src/prisma.service';
+import { AppModule } from '@src/app.module';
+import { PrismaService } from '@src/persistence/prisma/prisma.service';
 import fs from 'fs';
 import request from 'supertest';
 import {
@@ -16,7 +16,7 @@ import {
   jest,
 } from '@jest/globals';
 
-describe('VideoController (e2e)', () => {
+describe('ContentController (e2e)', () => {
   let module: TestingModule;
   let app: INestApplication;
   let prismaService: PrismaService;
@@ -61,7 +61,7 @@ describe('VideoController (e2e)', () => {
       jest.useRealTimers();
       try {
         await request(app.getHttpServer())
-          .post('/video')
+          .post('/content/video')
           .attach('video', './test/fixtures/sample.mp4')
           .attach('thumbnail', './test/fixtures/sample.jpg')
           .field('title', video.title)
@@ -95,7 +95,7 @@ describe('VideoController (e2e)', () => {
       jest.useRealTimers();
       try {
         await request(app.getHttpServer())
-          .post('/video')
+          .post('/content/video')
           .attach('video', './test/fixtures/sample.mp4')
           .field('title', video.title)
           .field('description', video.description)
@@ -125,7 +125,7 @@ describe('VideoController (e2e)', () => {
       jest.useRealTimers();
       try {
         await request(app.getHttpServer())
-          .post('/video')
+          .post('/content/video')
           .attach('video', './test/fixtures/sample.mp3')
           .attach('thumbnail', './test/fixtures/sample.jpg')
           .field('title', video.title)
@@ -147,7 +147,7 @@ describe('VideoController (e2e)', () => {
   describe('/stream/:videoId (GET)', () => {
     it('streams a video', async () => {
       const { body: sampleVideo } = await request(app.getHttpServer())
-        .post('/video')
+        .post('/content/video')
         .attach('video', './test/fixtures/sample.mp4')
         .attach('thumbnail', './test/fixtures/sample.jpg')
         .field('title', 'Test Video')
@@ -158,7 +158,7 @@ describe('VideoController (e2e)', () => {
       const range = `bytes=0-${fileSize - 1}`;
 
       const response = await request(app.getHttpServer())
-        .get(`/stream/${sampleVideo.id}`)
+        .get(`/content/stream/${sampleVideo.id}`)
         .set('Range', range)
         .expect(HttpStatus.PARTIAL_CONTENT);
 
@@ -173,7 +173,7 @@ describe('VideoController (e2e)', () => {
 
     it('returns 404 for non existing video', async () => {
       await request(app.getHttpServer())
-        .get('/stream/non-existing-id')
+        .get('/content/stream/non-existing-id')
         .expect(HttpStatus.NOT_FOUND);
     });
   });

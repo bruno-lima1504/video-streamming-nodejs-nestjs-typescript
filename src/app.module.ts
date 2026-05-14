@@ -1,11 +1,12 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { PrismaService } from './prisma.service';
+import { PrismaService } from '@src/persistence/prisma/prisma.service';
+import { ContentController } from '@src/http/rest/contoller/content.controller';
+import { MidiaPlayerService } from '@src/core/service/midia-player.service';
+import { ContentManagementService } from '@src/core/service/content-management.service';
 
 @Module({
   imports: [],
-  controllers: [AppController],
-  providers: [AppService, PrismaService],
+  controllers: [ContentController],
+  providers: [PrismaService, ContentManagementService, MidiaPlayerService],
 })
 export class AppModule {}
