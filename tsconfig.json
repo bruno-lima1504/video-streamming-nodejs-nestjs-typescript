@@ -22,6 +22,7 @@
     "noImplicitThis": true,
     "noUnusedParameters": true,
     "strictBindCallApply": false,
+    "strictPropertyInitialization": false,
     "noFallthroughCasesInSwitch": false,
     "types": [
       "node",
