@@ -24,6 +24,10 @@ export class ContentEntity extends BaseEntity {
 
   private constructor(data: ContentEntityProps) {
     super(data);
+    this.media = data.media;
+    this.type = data.type;
+    this.title = data.title;
+    this.description = data.description;
   }
 
   static createNew(

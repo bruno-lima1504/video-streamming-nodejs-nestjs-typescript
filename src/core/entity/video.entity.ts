@@ -19,6 +19,9 @@ export class VideoEntity extends BaseEntity {
 
   private constructor(data: VideoEntityProps) {
     super(data);
+    this.url = data.url;
+    this.sizeInKb = data.sizeInKb;
+    this.duration = data.duration;
   }
 
   static createNew(data: NewVideoEntity, id = randomUUID()): VideoEntity {

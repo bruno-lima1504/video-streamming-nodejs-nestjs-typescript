@@ -10,6 +10,7 @@ export class ThumbnailEntity extends BaseEntity {
 
   private constructor(data: ThumbnailEntityProps) {
     super(data);
+    this.url = data.url;
   }
 
   static createNew(

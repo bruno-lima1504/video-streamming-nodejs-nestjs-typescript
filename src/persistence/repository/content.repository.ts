@@ -1,7 +1,19 @@
 import { Injectable } from '@nestjs/common';
 import { ContentEntity } from '@src/core/entity/content.entity';
+import { MovieEntity } from '@src/core/entity/movie.entity';
+import { ThumbnailEntity } from '@src/core/entity/thumbnail.entity';
+import { VideoEntity } from '@src/core/entity/video.entity';
 import { PrismaService } from '@src/persistence/prisma/prisma.service';
-import { Prisma } from '../generated/prisma/client';
+import { Prisma } from '@src/persistence/generated/prisma/client';
+
+const contentInclude = {
+  Movie: {
+    include: {
+      Video: true,
+      Thumbnail: true,
+    },
+  },
+} satisfies Prisma.ContentInclude;
 
 @Injectable()
 export class ContentRepository {
@@ -15,7 +27,7 @@ export class ContentRepository {
     try {
       const movie = content.getMedia();
       if (!movie) {
-        throw new Error('Movie must be privided');
+        throw new Error('Movie must be provided');
       }
 
       const video = movie.getVideo();
@@ -47,6 +59,82 @@ export class ContentRepository {
     }
   }
 
+  async findById(id: string): Promise<ContentEntity | undefined> {
+    try {
+      const content = await this.model.findUnique({
+        where: { id },
+        include: contentInclude,
+      });
+      if (!content) {
+        return;
+      }
+
+      return this.mapToEntity(content);
+    } catch (error) {
+      this.handleAndThrowError(error);
+    }
+  }
+
+  private mapToEntity<
+    T extends Prisma.ContentGetPayload<{
+      include: typeof contentInclude;
+    }>,
+  >(content: T): ContentEntity {
+    if (!content.Movie) {
+      throw new Error('Movie must be defined');
+    }
+
+    const contentEntity = ContentEntity.createFrom({
+      id: content.id,
+      type: content.type,
+      title: content.title,
+      description: content.description,
+      createdAt: new Date(content.createdAt),
+      updatedAt: new Date(content.updatedAt),
+    });
+    if (this.isMovie(content) && content.Movie.Video) {
+      contentEntity.addMedia(
+        MovieEntity.createFrom({
+          id: content.Movie.id,
+          createdAt: new Date(content.Movie.createdAt),
+          updatedAt: new Date(content.Movie.updatedAt),
+          video: VideoEntity.createFrom({
+            id: content.Movie.Video.id,
+            url: content.Movie.Video.url,
+            duration: content.Movie.Video.duration,
+            sizeInKb: content.Movie.Video.sizeInKb,
+            createdAt: new Date(content.Movie.Video.createdAt),
+            updatedAt: new Date(content.Movie.Video.updatedAt),
+          }),
+        }),
+      );
+      if (content.Movie.Thumbnail) {
+        contentEntity.getMedia()?.addThumbnail(
+          ThumbnailEntity.createFrom({
+            id: content.Movie.Thumbnail.id,
+            url: content.Movie.Thumbnail.url,
+            createdAt: new Date(content.Movie.Thumbnail.createdAt),
+            updatedAt: new Date(content.Movie.Thumbnail.updatedAt),
+          }),
+        );
+      }
+    }
+    return contentEntity;
+  }
+
+  private isMovie(content: unknown): content is Prisma.ContentGetPayload<{
+    include: {
+      Movie: {
+        include: { Video: true };
+      };
+    };
+  }> {
+    if (typeof content === 'object' && content !== null && 'Movie' in content) {
+      return true;
+    }
+    return false;
+  }
+
   private extractErrorMessage(error: unknown): string {
     if (error instanceof Error && error?.message) {
       return error.message;
@@ -62,5 +150,13 @@ export class ContentRepository {
     }
 
     throw new Error(errorMessage);
+  }
+
+  async clear(): Promise<{ count: number }> {
+    try {
+      return await this.model.deleteMany();
+    } catch (error) {
+      this.handleAndThrowError(error);
+    }
   }
 }

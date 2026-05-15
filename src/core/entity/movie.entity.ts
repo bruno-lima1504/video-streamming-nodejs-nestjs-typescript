@@ -14,6 +14,8 @@ export class MovieEntity extends BaseEntity {
 
   private constructor(data: MovieEntityProps) {
     super(data);
+    this.video = data.video;
+    this.thumbnail = data.thumbnail;
   }
 
   static createNew(
