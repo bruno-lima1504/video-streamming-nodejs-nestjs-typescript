@@ -6,9 +6,10 @@ import { ContentManagementService } from '@src/core/service/content-management.s
 import { ContentRepository } from '@src/persistence/repository/content.repository';
 import { VideoRepository } from '@src/persistence/repository/video.repository';
 import { MidiaPlayerController } from '@src/http/rest/contoller/media-player.controller';
+import { ConfigModule } from './infra/module/config/config.module';
 
 @Module({
-  imports: [],
+  imports: [ConfigModule.forRoot()],
   controllers: [ContentController, MidiaPlayerController],
   providers: [
     PrismaService,
