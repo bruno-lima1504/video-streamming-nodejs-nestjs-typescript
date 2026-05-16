@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { DynamicModule } from '@nestjs/common';
 import {
   ConfigModule as NestConfigModule,
