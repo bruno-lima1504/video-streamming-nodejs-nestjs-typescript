@@ -22,7 +22,9 @@
     "noImplicitThis": true,
     "noUnusedParameters": true,
     "strictBindCallApply": false,
+    "strictPropertyInitialization": false,
     "noFallthroughCasesInSwitch": false,
+    "useDefineForClassFields": false,
     "types": [
       "node",
       "jest"
@@ -38,6 +40,7 @@
   },
   "include": [
     "src/**/*",
-    "test/**/*"
+    "test/**/*",
+    "database/**/*"
   ]
 }

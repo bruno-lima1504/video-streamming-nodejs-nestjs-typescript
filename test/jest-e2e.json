@@ -1,18 +1,18 @@
 {
-  "moduleFileExtensions": [
-    "js",
-    "json",
-    "ts"
-  ],
+  "moduleFileExtensions": ["js", "json", "ts"],
   "rootDir": "..",
-  "moduleNameMapper": {
-    "^@src/(.*)$": "<rootDir>/src/$1",
-    "^(\\.{1,2}/.*)\\.js$": "$1"
-  },
   "testEnvironment": "node",
-  "testRegex": ".e2e-spec.ts$",
+  "moduleNameMapper": {
+    "^(\\.{1,2}/.*)\\.js$": "$1",
+    "^@src/(.*)$": "<rootDir>/src/$1",
+    "^@database/(.*)$": "<rootDir>/database/$1",
+    "^@testInfra/(.*)$": "<rootDir>/test/$1"
+  },
   "transform": {
     "^.+\\.(t|j)s$": "ts-jest"
   },
-  "globalSetup": "<rootDir>/test/setup.ts"
+  "setupFiles": ["<rootDir>/test/setup.ts"],
+  "verbose": true,
+  "resetMocks": true,
+  "testMatch": ["<rootDir>/src/__test__/e2e/*.spec.ts"]
 }
