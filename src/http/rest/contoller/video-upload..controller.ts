@@ -15,11 +15,11 @@ import { randomUUID } from 'crypto';
 import { extname } from 'path';
 import type { Request } from 'express';
 import { ContentManagementService } from '@src/core/service/content-management.service';
-import { RestResponseInterceptor } from '../interceptor/rest-response.interceptor';
-import { CreateVideoResponseDto } from '../dto/response/create-video-response-ddto';
+import { RestResponseInterceptor } from '@src/http/rest/interceptor/rest-response.interceptor';
+import { CreateVideoResponseDto } from '@src/http/rest/dto/response/create-video-response-ddto';
 
 @Controller('content')
-export class ContentController {
+export class VideoUploadController {
   constructor(
     private readonly contentManagementService: ContentManagementService,
   ) {}
@@ -80,7 +80,24 @@ export class ContentController {
       );
     }
 
-    const createdContent = await this.contentManagementService.createContent({
+    const MAX_FILE_SIZE = 1024 * 1024 * 1024; // 1 gigabyte
+
+    if (videoFile.size > MAX_FILE_SIZE) {
+      throw new BadRequestException('File size exceeds the limit.');
+    }
+    const MAX_THUMBNAIL_SIZE = 1024 * 1024 * 10; // 10 megabytes
+
+    if (thumbnailFile.size > MAX_THUMBNAIL_SIZE) {
+      throw new BadRequestException('Thumbnail size exceeds the limit.');
+    }
+
+    if (!videoFile || !thumbnailFile) {
+      throw new BadRequestException(
+        'Both video and thumbnail files are required.',
+      );
+    }
+
+    const createdMovie = await this.contentManagementService.createMovie({
       title: contentData.title,
       description: contentData.description,
       url: videoFile.path,
@@ -88,23 +105,16 @@ export class ContentController {
       sizeInKb: videoFile.size,
     });
 
-    const movie = createdContent.getMedia();
-    const video = movie?.getVideo();
-    const thumbnail = movie?.getThumbnail();
-    if (!video || !thumbnail) {
-      throw new BadRequestException('Video and thumbnail must be present');
-    }
-
     return {
-      id: createdContent.getId(),
-      title: createdContent.getTitle(),
-      description: createdContent.getDescription(),
-      url: video.getUrl(),
-      thumbnailUrl: thumbnail.getUrl(),
-      sizeInKb: video.getSizeInKb(),
-      duration: video.getDuration(),
-      createdAt: createdContent.getCreatedAt(),
-      updatedAt: createdContent.getUpdatedAt(),
+      id: createdMovie.id,
+      title: createdMovie.title,
+      description: createdMovie.description,
+      url: createdMovie.movie.video.url,
+      thumbnailUrl: createdMovie.movie.thumbnail.url,
+      sizeInKb: createdMovie.movie.video.sizeInKb,
+      duration: createdMovie.movie.video.duration,
+      createdAt: createdMovie.createdAt,
+      updatedAt: createdMovie.updatedAt,
     };
 
     // o interceptor está fazendo essa função abaixo para validar o retorno de apis, com o interceptor não precisamos respetir essa mesma verificação em todas as rotas.

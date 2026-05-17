@@ -14,13 +14,18 @@ import {
   afterAll,
   jest,
 } from '@jest/globals';
+import nock from 'nock';
 import { VideoRepository } from '@src/persistence/repository/video.repository';
+import { ContentRepository } from '@src/persistence/repository/content.repository';
+import { MovieRepository } from '@src/persistence/repository/movie.repository';
 import { ContentManagementService } from '@src/core/service/content-management.service';
 
 describe('ContentController (e2e)', () => {
   let module: TestingModule;
   let app: INestApplication;
   let videoRepository: VideoRepository;
+  let contentRepository: ContentRepository;
+  let movieRepository: MovieRepository;
   let contentManagementService: ContentManagementService;
 
   beforeAll(async () => {
@@ -35,6 +40,8 @@ describe('ContentController (e2e)', () => {
       ContentManagementService,
     );
     videoRepository = module.get<VideoRepository>(VideoRepository);
+    contentRepository = module.get<ContentRepository>(ContentRepository);
+    movieRepository = module.get<MovieRepository>(MovieRepository);
   });
 
   beforeEach(() => {
@@ -45,6 +52,9 @@ describe('ContentController (e2e)', () => {
 
   afterEach(async () => {
     await videoRepository.deleteAll();
+    await movieRepository.deleteAll();
+    await contentRepository.deleteAll();
+    nock.cleanAll();
   });
 
   afterAll(async () => {
@@ -54,7 +64,45 @@ describe('ContentController (e2e)', () => {
 
   describe('/stream/:videoId (GET)', () => {
     it('streams a video', async () => {
-      const createContent = await contentManagementService.createContent({
+      nock('https://api.themoviedb.org/3', {
+        encodedQueryParams: true,
+        reqheaders: {
+          Authorization: (): boolean => true,
+        },
+      })
+        .defaultReplyHeaders({ 'access-control-allow-origin': '*' })
+        .get(`/search/keyword`)
+        .query({
+          query: 'Test Video',
+          page: '1',
+        })
+        .reply(200, {
+          results: [
+            {
+              id: '1',
+            },
+          ],
+        });
+
+      nock('https://api.themoviedb.org/3', {
+        encodedQueryParams: true,
+        reqheaders: {
+          Authorization: (): boolean => true,
+        },
+      })
+        .defaultReplyHeaders({ 'access-control-allow-origin': '*' })
+        .get(`discover/movie`)
+        .query({
+          with_keywords: '1',
+        })
+        .reply(200, {
+          results: [
+            {
+              vote_average: 8.5,
+            },
+          ],
+        });
+      const createdMovie = await contentManagementService.createMovie({
         title: 'Test Video',
         description: 'This a test video',
         url: './test/fixtures/sample.mp4',
@@ -66,7 +114,7 @@ describe('ContentController (e2e)', () => {
       const range = `bytes=0-${fileSize - 1}`;
 
       const response = await request(app.getHttpServer())
-        .get(`/stream/${createContent.getMedia()?.getVideo().getId()}`)
+        .get(`/stream/${createdMovie.movie.video.id}`)
         .set('Range', range)
         .expect(HttpStatus.PARTIAL_CONTENT);
 

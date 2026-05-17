@@ -16,8 +16,8 @@ export abstract class DefaultEntity<T> {
   }
 
   @BeforeInsert()
-  beforeInser(): void {
-    this.createdAt = this.createdAt || new DataTransfer();
+  beforInsert(): void {
+    this.createdAt = this.createdAt || new Date();
     this.updatedAt = new Date();
   }
 
