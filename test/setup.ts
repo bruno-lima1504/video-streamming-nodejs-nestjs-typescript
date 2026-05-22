@@ -1,10 +1,4 @@
-// import * as dotenv from 'dotenv';
-
-// export default async () => {
-//   dotenv.config({ path: '.env' });
-// };
-
-import dotenv from 'dotenv';
+import { config } from 'dotenv';
 import fs from 'fs';
 
 const testEnvFile = `.env.test`;
@@ -26,5 +20,5 @@ if (!fs.existsSync(testEnvFile)) {
 // If a .env.test file is not found, the DATABASE_URL will fallback to the
 // default. Consequently, you'll lose your development database during the
 // integration tests teardown. Hence, the check above.
-dotenv.config({ path: envFile });
-dotenv.config({ path: testEnvFile, override: true });
+config({ path: envFile });
+config({ path: testEnvFile, override: true });
