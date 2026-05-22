@@ -1,3 +1,4 @@
+/* eslint-disable import/no-restricted-paths */
 import {
   Injectable,
   Logger,
