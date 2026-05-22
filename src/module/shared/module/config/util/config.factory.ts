@@ -1,6 +1,6 @@
-import { ConfigException } from '../exception/config.exception';
-import { configSchema } from './config.schema';
-import { Config } from './config.type';
+import { ConfigException } from '@sharedModule/config/exception/config.exception';
+import { configSchema } from '@sharedModule/config/util/config.schema';
+import { Config } from '@sharedModule/config/util/config.type';
 
 export const factory = (): Config => {
   const result = configSchema.safeParse({
@@ -13,6 +13,7 @@ export const factory = (): Config => {
       port: process.env.DATABASE_PORT,
       url: process.env.DATABASE_URL,
       username: process.env.DATABASE_USERNAME,
+      schema: process.env.DATABASE_SCHEMA ?? 'public',
     },
     movieDb: {
       apiToken: process.env.MOVIEDB_API_TOKEN,

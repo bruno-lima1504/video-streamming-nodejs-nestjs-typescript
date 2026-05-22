@@ -9,6 +9,7 @@ export const databaseSchema = z.object({
   port: z.coerce.number(),
   url: z.string().startsWith('postgresql://'),
   username: z.string(),
+  schema: z.string().default('public'),
 });
 
 export const movieDbSchema = z.object({
