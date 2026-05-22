@@ -1,9 +1,14 @@
 import { NestFactory } from '@nestjs/core';
-import { ConfigService } from '@src/infra/module/config/service/config.service';
-import { TypeOrmMigrationService } from '@src/infra/module/typeorm/service/typeorm-migration.service';
-import { PersistenceModule } from '@src/persistence/persistence.module';
-import { DataSourceOptions } from 'typeorm';
+import { ConfigService } from '@sharedModule/config/service/config.service';
+import { TypeOrmMigrationService } from '@contentModule/infra/module/typeorm/service/typeorm-migration.service';
+import { PersistenceModule } from '@contentModule/persistence/persistence.module';
+import { DataSource, DataSourceOptions } from 'typeorm';
 import { createPostgresDatabase } from 'typeorm-extension';
+
+export const ensureDatabaseSchema = async (dataSource: DataSource) => {
+  const schema = (dataSource.options as { schema?: string }).schema ?? 'public';
+  await dataSource.query(`CREATE SCHEMA IF NOT EXISTS "${schema}"`);
+};
 
 const createDatabaseModule = async () => {
   return await NestFactory.createApplicationContext(
@@ -25,6 +30,10 @@ export const migrate = async () => {
     ifNotExist: true,
     options,
   });
+  const dataSource = await migrationModule
+    .get(TypeOrmMigrationService)
+    .getDataSource();
+  await ensureDatabaseSchema(dataSource);
   await migrationModule.get(TypeOrmMigrationService).migrate();
 };
 

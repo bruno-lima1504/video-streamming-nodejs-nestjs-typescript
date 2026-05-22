@@ -1,7 +1,8 @@
-import { getDataSource } from './typeorm-migration-helper';
+import { ensureDatabaseSchema, getDataSource } from './typeorm-migration-helper';
 
 const prepareDateSourceForMigration = async () => {
   const dataSource = await getDataSource();
+  await ensureDatabaseSchema(dataSource);
   /**
    * In order to use Nest modules and have just one connection
    * we need to close the connection that nest created so TypeOrm migration manager can create a new one.
