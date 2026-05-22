@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-return */
 import { Column, Entity, OneToOne } from 'typeorm';
 import { DefaultEntity } from '@contentModule/infra/module/typeorm/entity/default.entity';
 import { TvShow } from '@contentModule/persistence/entity/tv-show.entity';

@@ -1,6 +1,7 @@
 import { UserRepository } from '@identityModule/persistence/repository/user.repository';
 import { Injectable } from '@nestjs/common';
 import { DomainException } from '@sharedLibs/core/exception/domain.exception';
+
 import { UserModel } from '@identityModule/core/model/user.model';
 import bcrypt from 'bcrypt';
 

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-return */
 import { Injectable } from '@nestjs/common';
 import { VideoRepository } from '@contentModule/persistence/repository/video.repository';
 import { VideoNotFoundException } from '@contentModule/core/exception/video-not-found-exception';
