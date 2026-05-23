@@ -5,7 +5,9 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   PrimaryColumn,
+  UpdateDateColumn,
 } from 'typeorm';
+
 /**
  * Do not extend TypeORM's BaseEntity to avoid coupling with TypeORM
  */
@@ -14,9 +16,8 @@ export abstract class DefaultEntity<T> {
     Object.assign(this, data);
     this.id = this.id || randomUUID();
   }
-
   @BeforeInsert()
-  beforInsert(): void {
+  beforeInsert(): void {
     this.createdAt = this.createdAt || new Date();
     this.updatedAt = new Date();
   }
@@ -32,7 +33,7 @@ export abstract class DefaultEntity<T> {
   @CreateDateColumn()
   createdAt: Date;
 
-  @CreateDateColumn()
+  @UpdateDateColumn()
   updatedAt: Date;
 
   //TODO add soft remove

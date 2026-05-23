@@ -18,14 +18,16 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "NODE_OPTIONS='--experimental-vm-modules' jest --config ./test/jest-e2e.json --runInBand",
-    "db:content:generate": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:generate database/typeorm/migrations/migration  -d ./database/content/typeorm/migration.datasource.ts",
-    "db:content:migrate": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:run -d ./database/content/typeorm/migration.datasource.ts",
-    "db:content:drop": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js schema:drop -d ./database/content/typeorm/migration.datasource.ts",
-    "db:deault:generate": "npx prisma generate --schema=database/shared/prisma/shared.prisma",
-    "db:identity:generate": "prisma generate --config=src/module/identity/persistence/prisma/prisma.config.ts",
-    "db:identity:migrate": "prisma migrate dev --config=src/module/identity/persistence/prisma/prisma.config.ts",
-    "db:identity:pull": "prisma db pull --config=src/module/identity/persistence/prisma/prisma.config.ts",
-    "db:identity:reset": "prisma migrate reset --config=src/module/identity/persistence/prisma/prisma.config.ts"
+    "content:db:generate": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:generate src/module/content/persistence/migration/migration -d src/module/content/persistence/typeorm-datasource.ts",
+    "content:db:migrate": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:run -d src/module/content/persistence/typeorm-datasource.ts",
+    "content:db:drop": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js schema:drop -d src/module/content/persistence/typeorm-datasource.ts",
+    "billing:db:generate": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:generate src/module/billing/persistence/migration/migration -d src/module/billing/persistence/typeorm-datasource.ts",
+    "billing:db:migrate": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:run -d src/module/billing/persistence/typeorm-datasource.ts",
+    "billing:db:drop": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js schema:drop -d src/module/billing/persistence/typeorm-datasource.ts",
+    "identity:db:generate": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:generate src/module/identity/persistence/migration/migration -d src/module/identity/persistence/typeorm-datasource.ts",
+    "identity:db:migrate": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:run -d src/module/identity/persistence/typeorm-datasource.ts",
+    "identity:db:drop": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js schema:drop -d src/module/identity/persistence/typeorm-datasource.ts",
+    "db:migrate:all": "yarn content:db:migrate && yarn billing:db:migrate && yarn identity:db:migrate"
   },
   "dependencies": {
     "@apollo/server": "^5.5.1",
@@ -52,6 +54,7 @@
     "rxjs": "^7.8.1",
     "typeorm": "^0.3.29",
     "typeorm-extension": "^3.9.0",
+    "typeorm-transactional": "^0.5.0",
     "zod": "^4.4.3"
   },
   "devDependencies": {

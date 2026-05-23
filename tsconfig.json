@@ -33,6 +33,9 @@
       "@contentModule/*": [
         "./src/module/content/*"
       ],
+      "@billingModule/*": [
+        "./src/module/billing/*"
+      ],
       "@identityModule/*": [
         "./src/module/identity/*"
       ],

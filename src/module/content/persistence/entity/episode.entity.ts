@@ -2,7 +2,7 @@ import { Column, Entity, JoinColumn, ManyToOne, OneToOne } from 'typeorm';
 import { Thumbnail } from '@contentModule/persistence/entity//thumbnail.entity';
 import { TvShow } from '@contentModule/persistence/entity/tv-show.entity';
 import { Video } from '@contentModule/persistence/entity/video.entity';
-import { DefaultEntity } from '@contentModule/infra/module/typeorm/entity/default.entity';
+import { DefaultEntity } from '@sharedModule/persistence/typeorm/entity/default.entity';
 
 @Entity('episode')
 export class Episode extends DefaultEntity<Episode> {

@@ -1,5 +1,5 @@
 import { Column, Entity, OneToOne } from 'typeorm';
-import { DefaultEntity } from '@contentModule/infra/module/typeorm/entity/default.entity';
+import { DefaultEntity } from '@sharedModule/persistence/typeorm/entity/default.entity';
 import { TvShow } from '@contentModule/persistence/entity/tv-show.entity';
 import { Movie } from '@contentModule/persistence/entity/movie.entity';
 import { ContentType } from '@contentModule/core/enum/content-type.enum';
