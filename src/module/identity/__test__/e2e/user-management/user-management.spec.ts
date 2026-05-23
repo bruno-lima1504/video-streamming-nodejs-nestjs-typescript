@@ -1,6 +1,8 @@
 import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { AppModule } from '@src/app.module';
+import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
+import { GraphQLModule } from '@nestjs/graphql';
+import { IdentityModule } from '@identityModule/identity.module';
 import { UserRepository } from '@identityModule/persistence/repository/user.repository';
 import request from 'supertest';
 
@@ -11,7 +13,13 @@ describe('UserResolver (e2e)', () => {
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
-      imports: [AppModule],
+      imports: [
+        IdentityModule,
+        GraphQLModule.forRoot<ApolloDriverConfig>({
+          driver: ApolloDriver,
+          autoSchemaFile: true,
+        }),
+      ],
     }).compile();
 
     app = module.createNestApplication();

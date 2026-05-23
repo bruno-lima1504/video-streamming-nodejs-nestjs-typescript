@@ -59,7 +59,6 @@
   "include": [
     "src/**/*",
     "test/**/*",
-    "database/**/*",
-    "src/module/identity/persistence/prisma/prisma.config.ts"
+    "database/**/*"
   ]
 }

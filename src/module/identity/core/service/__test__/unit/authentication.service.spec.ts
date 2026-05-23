@@ -2,7 +2,7 @@
 import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
 import { UserUnauthorizedException } from '@identityModule/core/exception/user-unauthorized.exception';
-import { UserModel } from '@identityModule/core/model/user.model';
+import { User } from '@identityModule/persistence/entity/user.entity';
 import { AuthService } from '@identityModule/core/service/authentication.service';
 import { UserRepository } from '@identityModule/persistence/repository/user.repository';
 import bcrypt from 'bcrypt';
@@ -19,7 +19,7 @@ describe('AuthenticationService', () => {
         {
           provide: UserRepository,
           useValue: {
-            findOne: jest.fn(),
+            findOneBy: jest.fn(),
           },
         },
         {
@@ -49,7 +49,7 @@ describe('AuthenticationService', () => {
       userRepository.findOneBy = jest
         .fn()
         .mockResolvedValue(
-          UserModel.create({ ...user, password: encryptedPassword }),
+          new User({ ...user, password: encryptedPassword }),
         );
       jwtService.signAsync = jest.fn().mockResolvedValue(token);
 
@@ -71,7 +71,7 @@ describe('AuthenticationService', () => {
       };
       userRepository.findOneBy = jest
         .fn()
-        .mockResolvedValue(UserModel.create(user));
+        .mockResolvedValue(new User(user));
 
       await expect(
         authService.signIn(user.email, 'invalidpassword'),

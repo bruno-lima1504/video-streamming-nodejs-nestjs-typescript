@@ -3,12 +3,11 @@ import { JwtModule } from '@nestjs/jwt';
 import { UserManagementService } from './core/service/user-management.service';
 import { AuthResolver } from './http/graphql/auth.resolver';
 import { UserResolver } from './http/graphql/user.resolver';
-import { UserRepository } from './persistence/repository/user.repository';
 import {
   AuthService,
   jwtConstants,
 } from '@identityModule/core/service/authentication.service';
-import { PersistenceModule } from '@sharedModule/persistence/prisma/persistence.module';
+import { IdentityPersistenceModule } from './persistence/identity-persistence.module';
 
 @Module({
   imports: [
@@ -16,14 +15,13 @@ import { PersistenceModule } from '@sharedModule/persistence/prisma/persistence.
       secret: jwtConstants.secret,
       signOptions: { expiresIn: '60m' },
     }),
-    PersistenceModule,
+    IdentityPersistenceModule,
   ],
   providers: [
     AuthService,
     AuthResolver,
     UserResolver,
     UserManagementService,
-    UserRepository,
   ],
 })
 export class IdentityModule {}

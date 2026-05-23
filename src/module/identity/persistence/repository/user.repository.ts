@@ -1,50 +1,23 @@
-import { UserModel } from '@identityModule/core/model/user.model';
+import { User } from '@identityModule/persistence/entity/user.entity';
 import { Injectable } from '@nestjs/common';
-import { DefaultPrismaRepository } from '@sharedModule/persistence/prisma/default.prisma.repository';
-import { PrismaService } from '@sharedModule/persistence/prisma/prisma.service';
-import { Prisma } from '../prisma/generated/prisma/client';
-
-type QueryableFields = Prisma.$UserPayload['scalars'];
+import { InjectDataSource } from '@nestjs/typeorm';
+import { DefaultTypeOrmRepository } from '@sharedModule/persistence/typeorm/repository/default-typeorm.repository';
+import { DataSource } from 'typeorm';
 
 @Injectable()
-export class UserRepository extends DefaultPrismaRepository {
-  private readonly model: PrismaService['user'];
-  constructor(prismaService: PrismaService) {
-    super();
-    this.model = prismaService.user;
-  }
-  async save(user: UserModel): Promise<void> {
-    try {
-      await this.model.create({
-        data: user,
-      });
-    } catch (error) {
-      this.handleAndThrowError(error);
-    }
+export class UserRepository extends DefaultTypeOrmRepository<User> {
+  constructor(
+    @InjectDataSource('identity')
+    dataSource: DataSource,
+  ) {
+    super(User, dataSource.manager);
   }
 
-  async findOneBy(
-    fields: Partial<QueryableFields>,
-  ): Promise<UserModel | undefined> {
-    try {
-      const user = await this.model.findFirst({
-        where: fields,
-      });
-      if (!user) {
-        return;
-      }
-
-      return UserModel.createFrom(user);
-    } catch (error) {
-      this.handleAndThrowError(error);
-    }
-  }
-
-  async clear(): Promise<{ count: number }> {
-    try {
-      return await this.model.deleteMany();
-    } catch (error) {
-      this.handleAndThrowError(error);
-    }
+  async findOneByEmail(email: string): Promise<User | null> {
+    return this.findOne({
+      where: {
+        email,
+      },
+    });
   }
 }

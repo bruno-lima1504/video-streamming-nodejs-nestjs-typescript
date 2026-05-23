@@ -1,5 +1,8 @@
 import { config } from 'dotenv';
 import fs from 'fs';
+import { initializeTransactionalContext } from 'typeorm-transactional';
+
+initializeTransactionalContext();
 
 const testEnvFile = `.env.test`;
 const envFile = `.env`;

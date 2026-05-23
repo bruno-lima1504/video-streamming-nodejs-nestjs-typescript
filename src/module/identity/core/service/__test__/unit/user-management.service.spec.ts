@@ -1,8 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UserManagementService } from '@identityModule/core/service/user-management.service';
 import { UserRepository } from '@identityModule/persistence/repository/user.repository';
-import { ConfigModule } from '@sharedLibs/module/config/config.module';
-import { PrismaService } from '@sharedLibs/module/persistence/prisma/prisma.service';
 
 describe('UserManagementService', () => {
   let service: UserManagementService;
@@ -10,8 +8,16 @@ describe('UserManagementService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [ConfigModule.forRoot()],
-      providers: [UserManagementService, UserRepository, PrismaService],
+      providers: [
+        UserManagementService,
+        {
+          provide: UserRepository,
+          useValue: {
+            save: jest.fn(),
+            findOneBy: jest.fn(),
+          },
+        },
+      ],
     }).compile();
 
     service = module.get<UserManagementService>(UserManagementService);
@@ -27,7 +33,9 @@ describe('UserManagementService', () => {
         lastName: 'Doe',
       };
 
-      jest.spyOn(userRepository, 'save').mockResolvedValueOnce();
+      jest
+        .spyOn(userRepository, 'save')
+        .mockImplementation(async (user) => user);
 
       const createdUser = await service.create(user);
       const { email, firstName, lastName } = createdUser;

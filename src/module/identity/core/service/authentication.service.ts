@@ -1,9 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { UserRepository } from '@identityModule/persistence/repository/user.repository';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 
-import { UserRepository } from '@identityModule/persistence/repository/user.repository';
-import bcrypt from 'bcrypt';
-import { UserUnauthorizedException } from '@identityModule/core/exception/user-unauthorized.exception';
+import { compare } from 'bcrypt';
 
 // TODO: move this to a .env file and config
 export const jwtConstants = {
@@ -21,9 +20,10 @@ export class AuthService {
     email: string,
     password: string,
   ): Promise<{ accessToken: string }> {
-    const user = await this.userRepository.findOneBy({ email });
+    const user = await this.userRepository.findOneByEmail(email);
+
     if (!user || !(await this.comparePassword(password, user.password))) {
-      throw new UserUnauthorizedException(`Cannot authorize user: ${email}`);
+      throw new UnauthorizedException(`Cannot authorize user: ${email}`);
     }
     //TODO add more fields to the JWT
     const payload = { sub: user.id };
@@ -39,6 +39,6 @@ export class AuthService {
     password: string,
     actualPassword: string,
   ): Promise<boolean> {
-    return bcrypt.compare(password, actualPassword);
+    return compare(password, actualPassword);
   }
 }
