@@ -13,7 +13,6 @@
     "^@sharedLibs/(.*)$": "<rootDir>/src/module/shared/$1",
     "^(\\.{1,2}/.*)\\.js$": "$1",
     "^@src/(.*)$": "<rootDir>/src/$1",
-    "^@database/(.*)$": "<rootDir>/database/$1",
     "^@testInfra/(.*)$": "<rootDir>/test/$1"
   },
   "transform": {

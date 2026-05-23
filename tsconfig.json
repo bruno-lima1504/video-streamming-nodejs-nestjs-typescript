@@ -51,6 +51,9 @@
       "@resource/*": [
         "./resource/*"
       ],
+      "@testInfra/*": [
+        "./test/*"
+      ],
     },
   },
   "include": [
