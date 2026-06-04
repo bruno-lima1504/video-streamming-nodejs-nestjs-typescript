@@ -4,7 +4,7 @@ import { TvShow } from '@contentModule/persistence/entity/tv-show.entity';
 import { Video } from '@contentModule/persistence/entity/video.entity';
 import { DefaultEntity } from '@sharedModule/persistence/typeorm/entity/default.entity';
 
-@Entity('episode')
+@Entity('Episode')
 export class Episode extends DefaultEntity<Episode> {
   @Column()
   title: string;

@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { VideoUploadController } from '@contentModule/http/rest/contoller/video-upload.controller';
+import { AdminMovieController } from '@contentModule/http/rest/contoller/admin-movie.controller';
 import { ContentRepository } from '@contentModule/persistence/repository/content.repository';
 import { VideoRepository } from '@contentModule/persistence/repository/video.repository';
 import { MidiaPlayerController } from '@contentModule/http/rest/contoller/media-player.controller';
@@ -9,10 +9,16 @@ import { ContentManagementService } from '@contentModule/core/service/content-ma
 import { MidiaPlayerService } from '@contentModule/core/service/midia-player.service';
 import { ConfigModule } from '@sharedModule/config/config.module';
 import { HttpClientModule } from '@sharedModule/http-client/http-client.module';
+import { AuthModule } from '@sharedModule/auth/auth.module';
 
 @Module({
-  imports: [PersistenceModule, ConfigModule.forRoot(), HttpClientModule],
-  controllers: [VideoUploadController, MidiaPlayerController],
+  imports: [
+    PersistenceModule,
+    ConfigModule.forRoot(),
+    HttpClientModule,
+    AuthModule,
+  ],
+  controllers: [AdminMovieController, MidiaPlayerController],
   providers: [
     ContentManagementService,
     MidiaPlayerService,

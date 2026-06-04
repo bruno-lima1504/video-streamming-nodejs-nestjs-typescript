@@ -7,6 +7,7 @@ import {
   Param,
   Req,
   Res,
+  UseGuards,
 } from '@nestjs/common';
 import path from 'path';
 import fs from 'fs';
@@ -14,11 +15,13 @@ import fs from 'fs';
 import type { Request, Response } from 'express';
 import { MidiaPlayerService } from '@contentModule/core/service/midia-player.service';
 import { VideoNotFoundException } from '@contentModule/core/exception/video-not-found-exception';
+import { AuthGuard } from '@sharedModule/auth/guard/auth.guard';
 
 @Controller('stream')
 export class MidiaPlayerController {
   constructor(private readonly midiaPlayerService: MidiaPlayerService) {}
 
+  @UseGuards(AuthGuard)
   @Get(':videoId')
   @Header('Content-Type', 'video/mp4')
   async streamVideo(

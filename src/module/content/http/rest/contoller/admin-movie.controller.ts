@@ -18,13 +18,13 @@ import { ContentManagementService } from '@contentModule/core/service/content-ma
 import { RestResponseInterceptor } from '@contentModule/http/rest/interceptor/rest-response.interceptor';
 import { CreateVideoResponseDto } from '@contentModule/http/rest/dto/response/create-video-response-ddto';
 
-@Controller('content')
-export class VideoUploadController {
+@Controller('admin')
+export class AdminMovieController {
   constructor(
     private readonly contentManagementService: ContentManagementService,
   ) {}
 
-  @Post('video')
+  @Post('movie')
   @HttpCode(HttpStatus.CREATED)
   @UseInterceptors(
     FileFieldsInterceptor(
@@ -58,7 +58,7 @@ export class VideoUploadController {
     ),
   )
   @UseInterceptors(new RestResponseInterceptor(CreateVideoResponseDto))
-  async uploadVideo(
+  async uploadMovie(
     @Req() _req: Request,
     @Body()
     contentData: {
