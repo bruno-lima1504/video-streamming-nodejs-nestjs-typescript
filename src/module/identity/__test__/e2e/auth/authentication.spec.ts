@@ -4,7 +4,7 @@ import { INestApplication } from '@nestjs/common';
 import { TestingModule } from '@nestjs/testing';
 import { Tables } from '@testInfra/enum/table.enum';
 import { testDbClient } from '@testInfra/knex.database';
-import { createNestApp } from '@testInfra/test-e2e.setup';
+import { createNestApp } from '@testInfra/jest-e2e.setup';
 import nock from 'nock';
 import request from 'supertest';
 
@@ -47,7 +47,7 @@ describe('AuthResolver (e2e)', () => {
         email: signInInput.email,
         password: signInInput.password,
       });
-      nock('https://localhost:3000', {
+      nock('http://localhost:3000', {
         encodedQueryParams: true,
         reqheaders: {
           Authorization: (): boolean => true,
@@ -114,7 +114,7 @@ describe('AuthResolver (e2e)', () => {
         email: signInInput.email,
         password: signInInput.password,
       });
-      nock('https://localhost:3000', {
+      nock('http://localhost:3000', {
         encodedQueryParams: true,
         reqheaders: {
           Authorization: (): boolean => true,
@@ -159,7 +159,7 @@ describe('AuthResolver (e2e)', () => {
         email: signInInput.email,
         password: signInInput.password,
       });
-      nock('https://localhost:3000', {
+      nock('http://localhost:3000', {
         encodedQueryParams: true,
         reqheaders: {
           Authorization: (): boolean => true,
