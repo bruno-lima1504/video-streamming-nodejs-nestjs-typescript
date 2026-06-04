@@ -1,7 +1,7 @@
 import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
 import { Content } from '@contentModule/persistence/entity/content.entity';
 import { Video } from '@contentModule/persistence/entity/video.entity';
-import { DefaultEntity } from '@contentModule/infra/module/typeorm/entity/default.entity';
+import { DefaultEntity } from '@sharedModule/persistence/typeorm/entity/default.entity';
 import { Thumbnail } from '@contentModule/persistence/entity/thumbnail.entity';
 
 @Entity({ name: 'Movie' })

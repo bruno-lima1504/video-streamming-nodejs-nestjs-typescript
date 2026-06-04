@@ -33,6 +33,9 @@
       "@contentModule/*": [
         "./src/module/content/*"
       ],
+      "@billingModule/*": [
+        "./src/module/billing/*"
+      ],
       "@identityModule/*": [
         "./src/module/identity/*"
       ],
@@ -48,12 +51,14 @@
       "@resource/*": [
         "./resource/*"
       ],
+      "@testInfra/*": [
+        "./test/*"
+      ],
     },
   },
   "include": [
     "src/**/*",
     "test/**/*",
-    "database/**/*",
-    "src/module/identity/persistence/prisma/prisma.config.ts"
+    "database/**/*"
   ]
 }
