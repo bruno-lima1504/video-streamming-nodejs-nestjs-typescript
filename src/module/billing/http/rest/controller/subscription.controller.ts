@@ -2,6 +2,7 @@ import { NotFoundDomainException } from '@sharedLibs/core/exception/not-found-do
 import {
   Body,
   Controller,
+  Get,
   InternalServerErrorException,
   NotFoundException,
   Post,
@@ -10,6 +11,7 @@ import { SubscriptionService } from '@billingModule/core/service/subscitpion.ser
 import { CreateSubscriptionRequestDto } from '@billingModule/http/rest/dto/request/create-subscription.dto';
 import { SubscriptionResponseDto } from '@billingModule/http/rest/dto/response/subscription-response.dto';
 import { plainToInstance } from 'class-transformer';
+import { BillingApiUserSubscriptionActiveResponseDto } from '@sharedModule/integration/http/dto/response/billing-api-subscription-status-response.dto';
 
 @Controller('subscription')
 export class SubscriptionController {
@@ -35,5 +37,19 @@ export class SubscriptionController {
       }
       throw new InternalServerErrorException();
     }
+  }
+
+  @Get('/user/:userId/active')
+  async isUserSubscriptionActive(
+    userId: string,
+  ): Promise<BillingApiUserSubscriptionActiveResponseDto> {
+    const isActive = this.subscriptionService.isUserSubscriptionActive(userId);
+    return plainToInstance(
+      BillingApiUserSubscriptionActiveResponseDto,
+      { isActive },
+      {
+        excludeExtraneousValues: true,
+      },
+    );
   }
 }

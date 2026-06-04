@@ -1,17 +1,9 @@
 import { ContentModule } from '@contentModule/content.module';
+import { IdentityModule } from '@identityModule/identity.module';
 import { Module } from '@nestjs/common';
-import { IdentityModule } from './module/identity/identity.module';
-import { GraphQLModule } from '@nestjs/graphql';
-import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
+import { BillingModule } from '@billingModule/billing.module';
 
 @Module({
-  imports: [
-    ContentModule,
-    IdentityModule,
-    GraphQLModule.forRoot<ApolloDriverConfig>({
-      driver: ApolloDriver,
-      autoSchemaFile: true,
-    }),
-  ],
+  imports: [ContentModule, IdentityModule, BillingModule],
 })
 export class AppModule {}

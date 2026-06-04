@@ -32,6 +32,12 @@ export class SubscriptionService {
     return subscription;
   }
 
+  async isUserSubscriptionActive(userId: string): Promise<boolean> {
+    const subscription =
+      await this.subscriptionRepository.findOneByUserId(userId);
+    return subscription?.status === SubscriptionStatus.Active;
+  }
+
   async getSubscriptionByUserId(userId: string): Promise<Subscription | null> {
     return this.subscriptionRepository.findOneByUserId(userId);
   }
