@@ -13,18 +13,14 @@ import {
   afterAll,
   jest,
 } from '@jest/globals';
-import nock from 'nock';
-import { VideoRepository } from '@contentModule/persistence/repository/video.repository';
-import { ContentRepository } from '@contentModule/persistence/repository/content.repository';
-import { MovieRepository } from '@contentModule/persistence/repository/movie.repository';
+import nock, { cleanAll } from 'nock';
 import { ContentManagementService } from '@contentModule/core/service/content-management.service';
+import { testDbClient } from '@testInfra/knex.database';
+import { Tables } from '@testInfra/enum/table.enum';
 
 describe('ContentController (e2e)', () => {
   let module: TestingModule;
   let app: INestApplication;
-  let videoRepository: VideoRepository;
-  let contentRepository: ContentRepository;
-  let movieRepository: MovieRepository;
   let contentManagementService: ContentManagementService;
 
   beforeAll(async () => {
@@ -38,9 +34,6 @@ describe('ContentController (e2e)', () => {
     contentManagementService = module.get<ContentManagementService>(
       ContentManagementService,
     );
-    videoRepository = module.get<VideoRepository>(VideoRepository);
-    contentRepository = module.get<ContentRepository>(ContentRepository);
-    movieRepository = module.get<MovieRepository>(MovieRepository);
   });
 
   beforeEach(() => {
@@ -50,10 +43,11 @@ describe('ContentController (e2e)', () => {
   });
 
   afterEach(async () => {
-    await videoRepository.deleteAll();
-    await movieRepository.deleteAll();
-    await contentRepository.deleteAll();
-    nock.cleanAll();
+    await testDbClient(Tables.Video).del();
+    await testDbClient(Tables.Movie).del();
+    await testDbClient(Tables.Content).del();
+    await testDbClient(Tables.Thumbnail).del();
+    cleanAll();
   });
 
   afterAll(async () => {
