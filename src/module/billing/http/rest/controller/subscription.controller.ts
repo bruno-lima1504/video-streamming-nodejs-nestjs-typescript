@@ -12,6 +12,7 @@ import { CreateSubscriptionRequestDto } from '@billingModule/http/rest/dto/reque
 import { SubscriptionResponseDto } from '@billingModule/http/rest/dto/response/subscription-response.dto';
 import { plainToInstance } from 'class-transformer';
 import { BillingApiUserSubscriptionActiveResponseDto } from '@sharedModule/integration/http/dto/response/billing-api-subscription-status-response.dto';
+import { UserSubscriptionActiveResponseDto } from '../dto/response/user-subscription-active-response.dto';
 
 @Controller('subscription')
 export class SubscriptionController {
@@ -42,7 +43,7 @@ export class SubscriptionController {
   @Get('/user/:userId/active')
   async isUserSubscriptionActive(
     userId: string,
-  ): Promise<BillingApiUserSubscriptionActiveResponseDto> {
+  ): Promise<UserSubscriptionActiveResponseDto> {
     const isActive = this.subscriptionService.isUserSubscriptionActive(userId);
     return plainToInstance(
       BillingApiUserSubscriptionActiveResponseDto,
