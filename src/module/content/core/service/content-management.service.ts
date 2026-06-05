@@ -1,11 +1,23 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { ContentRepository } from '@contentModule/persistence/repository/content.repository';
-import { ContentType } from '@contentModule/core/enum/content-type.enum';
-import { Movie } from '@contentModule/persistence/entity/movie.entity';
+import { EpisodeRepository } from '@contentModule/persistence/repository/episode.repository';
+import { VideoMetadataService } from '@contentModule/core/service/video-metadata.service';
+import { VideoProfanityFilterService } from '@contentModule/core/service/video-profanity-filter.service';
+import { ExternalMovieClient } from '@contentModule/http/rest/client/external-movie-rating/external-movie-rating.client';
+import { AgeRecommendationService } from '@contentModule/core/service/age-recommendation.service';
 import { Video } from '@contentModule/persistence/entity/video.entity';
-import { Content } from '@contentModule/persistence/entity/content.entity';
+import { Movie } from '@contentModule/persistence/entity/movie.entity';
+import { TvShow } from '@contentModule/persistence/entity/tv-show.entity';
 import { Thumbnail } from '@contentModule/persistence/entity/thumbnail.entity';
-import { externalMovieClient } from '@contentModule/http/rest/client/external-movie-rating/external-movie-rating.client';
+import { Episode } from '@contentModule/persistence/entity/episode.entity';
+import { CreateEpisodeRequestDto } from '@contentModule/http/rest/dto/request/create-episode-request.dto';
+import { MovieContentModel } from '../model/movie-content.model';
+import { TvShowContentModel } from '../model/tv-show-cotent.model';
+import { Transactional } from 'typeorm-transactional';
 
 export interface CreateMovieData {
   title: string;
@@ -19,18 +31,24 @@ export interface CreateMovieData {
 export class ContentManagementService {
   constructor(
     private readonly contentRepository: ContentRepository,
-    private readonly externalMovieRatingClient: externalMovieClient,
+    private readonly externalMovieRatingClient: ExternalMovieClient,
+    private readonly episodeRepository: EpisodeRepository,
+    private readonly videoMetadataService: VideoMetadataService,
+    private readonly videoProfanityService: VideoProfanityFilterService,
+    private readonly ageRecommendationService: AgeRecommendationService,
   ) {}
 
-  async createMovie(createMovieData: CreateMovieData): Promise<Content> {
+  async createMovie(
+    createMovieData: CreateMovieData,
+  ): Promise<MovieContentModel> {
     const externalRating = await this.externalMovieRatingClient.getRating(
       createMovieData.title,
     );
 
-    const contentEntity = new Content({
+    const contentEntity = new MovieContentModel({
       title: createMovieData.title,
       description: createMovieData.description,
-      type: ContentType.MOVIE,
+      ageRecommendation: null,
       movie: new Movie({
         externalRating,
         video: new Video({
@@ -47,8 +65,110 @@ export class ContentManagementService {
       });
     }
 
-    const content = await this.contentRepository.save(contentEntity);
+    const content = await this.contentRepository.saveMovie(contentEntity);
 
     return content;
+  }
+
+  async createTvShow(tvShow: {
+    //TODO add userId
+    title: string;
+    description: string;
+    thumbnailUrl?: string;
+  }): Promise<TvShowContentModel> {
+    const content = new TvShowContentModel({
+      title: tvShow.title,
+      description: tvShow.description,
+      tvShow: new TvShow({}),
+    });
+
+    if (tvShow.thumbnailUrl && content.tvShow) {
+      content.tvShow.thumbnail = new Thumbnail({
+        url: tvShow.thumbnailUrl,
+      });
+    }
+
+    return await this.contentRepository.saveTvShow(content);
+  }
+
+  @Transactional()
+  async createEpisode(
+    //Problem: Requie too many repositories
+    contentId: string,
+    episodeData: CreateEpisodeRequestDto & {
+      videoUrl: string;
+      videoSizeInKb: number;
+    },
+  ): Promise<Episode> {
+    const content = await this.contentRepository.findTvShowContentById(
+      contentId,
+      ['tvShow'],
+    );
+    if (!content) {
+      throw new NotFoundException(
+        `Tv Show with content id ${contentId} not found`,
+      );
+    }
+    if (!content?.tvShow) {
+      throw new NotFoundException(
+        `Tv Show with content id ${contentId} not found`,
+      );
+    }
+
+    //Domain logic validation
+    const episodeWithSameSeasonAndNumber =
+      await this.episodeRepository.existsBy({
+        season: episodeData.season,
+        number: episodeData.number,
+        tvShow: { id: content.tvShow.id },
+      });
+    if (episodeWithSameSeasonAndNumber) {
+      throw new BadRequestException(
+        `Episode with season ${episodeData.season} and number ${episodeData.number} already exists`,
+      );
+    }
+
+    const lastEpisode =
+      await this.episodeRepository.findByLastEpisodeByTvShowAndSeason(
+        content.tvShow.id,
+        episodeData.season,
+      );
+    if (lastEpisode && lastEpisode.number + 1 !== episodeData.number) {
+      throw new BadRequestException(
+        `Episode number should be ${lastEpisode.number + 1}`,
+      );
+    }
+
+    const episode = new Episode({
+      title: episodeData.title,
+      description: episodeData.description,
+      season: episodeData.season,
+      number: episodeData.number,
+      tvShow: content.tvShow,
+      video: new Video({
+        url: episodeData.videoUrl,
+        duration: await this.videoMetadataService.getVideoDuration(
+          episodeData.videoUrl,
+        ),
+        sizeInKb: episodeData.videoSizeInKb,
+      }),
+    });
+
+    // assume it's  async and will update the video late
+    //TODO: implement the video profanity filter save non transactional
+    await this.videoProfanityService.filterProfanity(episode.video);
+
+    const ageRecommendation =
+      await this.ageRecommendationService.getAgeRecommendationForContent(
+        episodeData.videoUrl,
+      );
+
+    content.ageRecommendation = ageRecommendation;
+
+    // not transactional
+    await this.contentRepository.saveTvShow(content);
+    await this.episodeRepository.save(episode);
+
+    return episode;
   }
 }

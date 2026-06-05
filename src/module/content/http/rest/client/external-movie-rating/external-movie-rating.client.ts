@@ -6,7 +6,7 @@ interface ApiResponse<T extends Record<string, any>> {
   results: Array<T>;
 }
 @Injectable()
-export class externalMovieClient {
+export class ExternalMovieClient {
   constructor(
     private readonly configService: ConfigService,
     private readonly httpClient: HttpClient,

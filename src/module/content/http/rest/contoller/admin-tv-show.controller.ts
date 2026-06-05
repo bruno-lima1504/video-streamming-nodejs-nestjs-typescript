@@ -1,0 +1,132 @@
+import { ContentManagementService } from '@contentModule/core/service/content-management.service';
+import {
+  Body,
+  Controller,
+  Req,
+  HttpCode,
+  HttpStatus,
+  ParseFilePipeBuilder,
+  Post,
+  UploadedFile,
+  UseInterceptors,
+  BadRequestException,
+  Param,
+} from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { randomUUID } from 'crypto';
+import { diskStorage } from 'multer';
+import { extname } from 'path';
+import type { Request } from 'express';
+import { CreateTvShowRequestDto } from '@contentModule/http/rest/dto/request/create-tv-show-request.dto';
+import { CreateTvShowResponseDto } from '@contentModule/http/rest/dto/response/create-tv-show-response.dto';
+import { CreateEpisodeResponseDto } from '../dto/response/ceate-episode-esponse.dto';
+import { CreateEpisodeRequestDto } from '../dto/request/create-episode-request.dto';
+
+@Controller('admin/tv-show')
+export class AdminTvShowController {
+  constructor(
+    private readonly contentManagementService: ContentManagementService,
+  ) {}
+
+  @Post()
+  @HttpCode(HttpStatus.CREATED)
+  @UseInterceptors(
+    FileInterceptor('thumbnail', {
+      dest: './uploads',
+      storage: diskStorage({
+        destination: './uploads',
+        filename: (_req, file, cb) => {
+          return cb(
+            null,
+            `${Date.now()}-${randomUUID()}${extname(file.originalname)}`,
+          );
+        },
+      }),
+    }),
+  )
+  async createTvShowContent(
+    @Req() _req: Request,
+    @Body() contentData: CreateTvShowRequestDto,
+    @UploadedFile(
+      new ParseFilePipeBuilder()
+        .addFileTypeValidator({
+          fileType: /jpe?g|image\/jpeg/i,
+          fallbackToMimetype: true,
+        })
+        .addMaxSizeValidator({
+          maxSize: 1024 * 1024,
+        })
+        .build(),
+    )
+    thumbnail: Express.Multer.File,
+  ): Promise<CreateTvShowResponseDto> {
+    const content = await this.contentManagementService.createTvShow({
+      title: contentData.title,
+      description: contentData.description,
+      thumbnailUrl: thumbnail.path,
+    });
+
+    return {
+      id: content.id,
+      tvShowId: content.tvShow.id,
+      title: content.title,
+      description: content.description,
+      thumbnailUrl: content.tvShow?.thumbnail?.url,
+    };
+  }
+
+  @Post(':contentId/upload-episode')
+  @HttpCode(HttpStatus.CREATED)
+  @UseInterceptors(
+    FileInterceptor('video', {
+      storage: diskStorage({
+        destination: './uploads',
+        filename: (_req, file, cb) => {
+          return cb(
+            null,
+            `${Date.now()}-${randomUUID()}${extname(file.originalname)}`,
+          );
+        },
+      }),
+    }),
+  )
+  async uploadEpisodeToTvShowContent(
+    @Req() _req: Request,
+    @Body() episodeData: CreateEpisodeRequestDto,
+    @Param('contentId') contentId: string,
+    @UploadedFile(
+      new ParseFilePipeBuilder()
+        .addFileTypeValidator({
+          fileType: 'mp4',
+          fallbackToMimetype: true,
+        })
+        .addMaxSizeValidator({
+          maxSize: 1024 * 1024 * 1024,
+        })
+        .build(),
+    )
+    video: Express.Multer.File,
+  ): Promise<CreateEpisodeResponseDto> {
+    if (!video) {
+      throw new BadRequestException('Video file is required.');
+    }
+
+    const createdEpisode = await this.contentManagementService.createEpisode(
+      contentId,
+      {
+        ...episodeData,
+        videoUrl: video.path,
+        videoSizeInKb: video.size,
+      },
+    );
+
+    return {
+      id: createdEpisode.id,
+      title: createdEpisode.title,
+      description: createdEpisode.description,
+      videoUrl: createdEpisode.video?.url,
+      duration: createdEpisode.video?.duration,
+      sizeInKb: createdEpisode.video?.sizeInKb,
+    };
+  }
+}

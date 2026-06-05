@@ -16,7 +16,7 @@ import { extname } from 'path';
 import type { Request } from 'express';
 import { ContentManagementService } from '@contentModule/core/service/content-management.service';
 import { RestResponseInterceptor } from '@contentModule/http/rest/interceptor/rest-response.interceptor';
-import { CreateVideoResponseDto } from '@contentModule/http/rest/dto/response/create-video-response-ddto';
+import { CreateVideoResponseDto } from '@contentModule/http/rest/dto/response/create-video-response.dto';
 
 @Controller('admin')
 export class AdminMovieController {

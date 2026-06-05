@@ -17,5 +17,5 @@ export const dataSourceOptionsFactory = (
   migrations: [join(__dirname, 'migration', '*-migration.{ts,js}')],
   migrationsRun: false,
   migrationsTableName: 'content_migrations',
-  logging: false,
+  logging: true,
 });

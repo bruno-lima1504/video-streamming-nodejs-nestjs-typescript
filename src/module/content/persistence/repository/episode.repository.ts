@@ -6,10 +6,7 @@ import { DataSource } from 'typeorm';
 
 @Injectable()
 export class EpisodeRepository extends DefaultTypeOrmRepository<Episode> {
-  constructor(
-    @InjectDataSource('content')
-    dataSource: DataSource,
-  ) {
+  constructor(@InjectDataSource('content') dataSource: DataSource) {
     super(Episode, dataSource.manager);
   }
 
@@ -19,9 +16,7 @@ export class EpisodeRepository extends DefaultTypeOrmRepository<Episode> {
   ): Promise<Episode | null> {
     return this.find({
       where: {
-        tvShow: {
-          id: tvShowId,
-        },
+        tvShow: { id: tvShowId },
         season,
       },
       order: {
