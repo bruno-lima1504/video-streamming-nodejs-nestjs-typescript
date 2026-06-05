@@ -7,6 +7,7 @@ export class TypeOrmPersistenceModule {
     return {
       module: TypeOrmPersistenceModule,
       imports: [TypeOrmModule.forRootAsync(options)],
+      exports: [TypeOrmModule],
     };
   }
 }
